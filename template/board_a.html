@@ -1,0 +1,156 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:FR;src:url(fonts/Fredoka.ttf)}
+@font-face{font-family:CV;src:url(fonts/Caveat.ttf)}
+html,body{margin:0;width:720px;height:1280px;overflow:hidden;background:#e9dfcc}
+#wrap{position:absolute;inset:0;perspective:2200px}
+.page{position:absolute;inset:0;overflow:hidden;transform-origin:50% 0;backface-visibility:hidden}
+.paper{position:absolute;inset:-40px;
+ background:
+  linear-gradient(90deg,transparent 74px,rgba(232,120,160,.55) 74px,rgba(232,120,160,.55) 76px,transparent 76px),
+  repeating-linear-gradient(180deg,transparent 0 41px,rgba(150,140,210,.28) 41px 42px),
+  radial-gradient(ellipse at 50% 45%,#fdf9f1 0%,#f7f0e2 75%,#efe5d2 100%);}
+.shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(60,30,80,.0),rgba(60,30,80,.35));opacity:0;pointer-events:none}
+.cam{position:absolute;left:0;top:0;width:720px;height:1280px;transform-origin:330px 600px}
+#vig{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 62%,rgba(120,90,60,.10) 100%);pointer-events:none;z-index:9}
+.t{position:absolute;white-space:nowrap;line-height:1.05}
+.fr{font-family:FR;font-weight:600}
+.cv{font-family:CV;font-weight:700}
+.pop{position:absolute;transform-origin:center}
+.hl{position:absolute;background:linear-gradient(100deg,rgba(255,222,90,0) 0%,rgba(255,222,90,.85) 4%,rgba(255,214,70,.85) 96%,rgba(255,222,90,0) 100%);border-radius:6px 14px 8px 12px;transform-origin:left center}
+svg.ink{position:absolute;left:0;top:0;overflow:visible}
+#safe{position:absolute;inset:0;z-index:20;display:none;pointer-events:none}
+</style></head><body>
+<div id="wrap">
+ <div class="page" id="pg2"><div class="paper"></div><div class="cam"><div class="under"></div><svg class="ink" width="720" height="1280"></svg><div class="over"></div></div></div>
+ <div class="page" id="pg1"><div class="paper"></div><div class="cam"><div class="under"></div><svg class="ink" width="720" height="1280"></svg><div class="over"></div></div><div class="shade"></div></div>
+</div>
+<div id="wm" style="position:absolute;right:104px;top:166px;z-index:8;font:600 19px FR;color:rgba(61,31,92,.72);letter-spacing:.5px">@mellazlan</div>
+<div id="vig"></div>
+<div id="safe"><svg width="720" height="1280">
+ <rect x="0" y="0" width="720" height="150" fill="rgba(255,0,0,.18)"/>
+ <rect x="0" y="980" width="720" height="300" fill="rgba(255,0,0,.18)"/>
+ <rect x="620" y="150" width="100" height="830" fill="rgba(255,0,0,.18)"/>
+ <rect x="0" y="150" width="40" height="830" fill="rgba(255,0,0,.12)"/>
+</svg></div>
+<script>
+const P={ink:'#3d1f5c',pur:'#7b4bb7',pink:'#e0578f',pinkL:'#fde0ec',yel:'#ffd84a',grn:'#2e9d63',txt:'#4a3a5c',blue:'#5aa9e6'};
+const I={
+cake:`<path d="M18 62 L82 40 L82 78 L18 82 Z" fill="#c98a5a" stroke="${P.ink}" stroke-width="4" stroke-linejoin="round"/><path d="M18 62 L82 40 L82 52 L18 70 Z" fill="#fff4e0" stroke="${P.ink}" stroke-width="3"/><path d="M18 62 L82 40 L76 34 L14 56 Z" fill="#6b3b2a" stroke="${P.ink}" stroke-width="3.5" stroke-linejoin="round"/><path d="M30 60 q2 8 -1 12 M50 53 q2 9 -1 13 M68 47 q2 7 0 10" stroke="#6b3b2a" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="62" cy="30" r="9" fill="${P.pink}" stroke="${P.ink}" stroke-width="3.5"/><path d="M62 21 q4 -9 12 -10" stroke="${P.ink}" stroke-width="3" fill="none"/>`,
+brain:`<path d="M50 18 C30 12 14 26 18 42 C8 50 12 68 26 70 C28 84 46 88 50 78 C54 88 72 84 74 70 C88 68 92 50 82 42 C86 26 70 12 50 18 Z" fill="${P.pinkL}" stroke="${P.ink}" stroke-width="4" stroke-linejoin="round"/><path d="M50 18 V78 M30 34 q8 4 6 12 M24 56 q10 -2 14 6 M70 34 q-8 4 -6 12 M76 56 q-10 -2 -14 6 M40 22 q2 8 -4 12 M60 22 q-2 8 4 12" stroke="${P.ink}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`,
+bolt:`<path d="M56 10 L24 56 L46 56 L38 90 L76 40 L54 40 Z" fill="${P.yel}" stroke="${P.ink}" stroke-width="4.5" stroke-linejoin="round"/>`,
+heart:`<path d="M50 84 C20 62 12 46 18 32 C24 18 44 18 50 34 C56 18 76 18 82 32 C88 46 80 62 50 84 Z" fill="${P.pink}" stroke="${P.ink}" stroke-width="4.5" stroke-linejoin="round"/><path d="M30 34 q4 -6 10 -4" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+loop:`<path d="M74 40 A28 28 0 1 0 76 62" fill="none" stroke="${P.pink}" stroke-width="7" stroke-linecap="round"/><path d="M62 38 L76 40 L80 26" fill="none" stroke="${P.pink}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>`,
+stop:`<path d="M34 10 H66 L90 34 V66 L66 90 H34 L10 66 V34 Z" fill="${P.pur}" stroke="${P.ink}" stroke-width="4.5" stroke-linejoin="round"/><rect x="26" y="44" width="48" height="12" rx="4" fill="#fff"/>`,
+glass:`<path d="M26 16 H74 L66 88 H34 Z" fill="#eaf5ff" stroke="${P.ink}" stroke-width="4.5" stroke-linejoin="round"/><path d="M30 44 H70 L66 84 H34 Z" fill="${P.blue}" opacity=".75"/><path d="M30 44 q10 -6 20 0 t20 0" fill="none" stroke="${P.ink}" stroke-width="3"/><circle cx="44" cy="62" r="3.5" fill="#fff"/><circle cx="56" cy="72" r="2.5" fill="#fff"/>`,
+walk:`<circle cx="56" cy="16" r="9" fill="${P.pinkL}" stroke="${P.ink}" stroke-width="4"/><path d="M52 28 L44 56 M48 36 L30 46 M48 36 L66 44 M44 56 L30 84 M44 56 L62 68 L60 86" fill="none" stroke="${P.ink}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M74 60 h12 M70 70 h12 M78 50 h8" stroke="${P.pink}" stroke-width="4" stroke-linecap="round"/>`,
+};
+const badge=(ic,fill)=>`<svg width="100%" height="100%" viewBox="-10 -10 120 120"><circle cx="50" cy="53" r="54" fill="rgba(61,31,92,.12)"/><circle cx="50" cy="50" r="54" fill="${fill}" stroke="${P.ink}" stroke-width="4"/><g transform="translate(14 14) scale(.72)">${I[ic]}</g></svg>`;
+const icon=n=>`<svg width="100%" height="100%" viewBox="0 0 100 100">${I[n]}</svg>`;
+const pill=txt=>`<div style="width:100%;height:100%;border-radius:18px;background:${P.ink};color:#fff;font:600 17px FR;display:flex;align-items:center;justify-content:center;letter-spacing:1px">${txt}</div>`;
+// ---- layout (safe area: x 40..620, y 150..980) ----
+const L=62, CX=330, CY=652, R=168, BR=44;
+const nodes={top:[CX,CY-R],right:[CX+R,CY],bottom:[CX,CY+R],left:[CX-R,CY]};
+function arc(a1,a2){const pad=20,s=(a1+pad)*Math.PI/180,e=(a2-pad)*Math.PI/180,f=v=>v.toFixed(1);
+ const x1=CX+R*Math.cos(s),y1=CY+R*Math.sin(s),x2=CX+R*Math.cos(e),y2=CY+R*Math.sin(e),tx=-Math.sin(e),ty=Math.cos(e),nx=Math.cos(e),ny=Math.sin(e);
+ return `M${f(x1)} ${f(y1)} A${R} ${R} 0 0 1 ${f(x2)} ${f(y2)} M${f(x2-13*tx+8*nx)} ${f(y2-13*ty+8*ny)} L${f(x2)} ${f(y2)} L${f(x2-13*tx-8*nx)} ${f(y2-13*ty-8*ny)}`;}
+const B=(n,ic,fill,seg,at)=>({pg:1,seg,at,k:'pop',x:nodes[n][0]-BR,y:nodes[n][1]-BR,w:BR*2,h:BR*2,html:badge(ic,fill)});
+const bx=CX-R*0.707, by=CY-R*0.707;
+const S=[
+ // ===== PAGE 1 =====
+ {pg:1,seg:0,k:'pop',x:L-4,y:162,w:150,h:34,html:pill('OTAK KITA #1')},
+ {pg:1,seg:0,k:'text',x:L,y:206,s:48,f:'fr',c:P.ink,txt:'Kenapa Dessert'},
+ {pg:1,seg:0,k:'hl',x:L-8,y:270,w:400,h:40},
+ {pg:1,seg:0,k:'text',x:L,y:262,s:40,f:'fr',c:P.ink,txt:'Buat Kita Nak Lagi?'},
+ {pg:1,seg:0,at:4.0,k:'pop',x:L-4,y:326,w:52,h:52,html:icon('cake')},
+ {pg:1,seg:0,k:'text',x:L+58,y:328,s:31,f:'cv',c:P.pink,txt:'dah kenyang... tapi ada ruang lagi?'},
+ {pg:1,seg:1,k:'pop',x:L-2,y:378,w:48,h:48,html:icon('brain')},
+ {pg:1,seg:1,k:'text',x:L+58,y:380,s:31,f:'cv',c:P.pur,txt:'bukan salah perut... ni kerja OTAK!'},
+ // seg2 top
+ B('top','cake',P.pinkL,2),
+ {pg:1,seg:2,k:'text',x:CX,y:CY-R+52,s:24,f:'fr',c:P.ink,txt:'MAKAN DESSERT',al:'c'},
+ {pg:1,seg:2,at:16.2,k:'text',x:CX,y:CY-R+80,s:23,f:'cv',c:P.pur,txt:'gula + lemak + garam',al:'c'},
+ // seg3 right
+ {pg:1,seg:3,k:'path',d:arc(-90,0),c:P.pink,w:4.5},
+ B('right','bolt','#fff6cf',3,20.1),
+ {pg:1,seg:3,at:21.8,k:'hl',x:CX+R-56-126,y:CY-44,w:130,h:22},
+ {pg:1,seg:3,k:'text',x:CX+R-54,y:CY-56,s:26,f:'fr',c:P.ink,txt:'DOPAMIN',al:'r'},
+ {pg:1,seg:3,at:23.0,k:'text',x:CX+R-54,y:CY-24,s:22,f:'cv',c:P.pur,txt:'dari VTA · rasa seronok',al:'r'},
+ // seg4 bottom
+ {pg:1,seg:4,k:'path',d:arc(0,90),c:P.pink,w:4.5},
+ B('bottom','heart','#ffe6ef',4),
+ {pg:1,seg:4,at:27.0,k:'text',x:CX,y:CY+R+50,s:22,f:'cv',c:P.pur,txt:'Nucleus Accumbens = pusat ganjaran',al:'c'},
+ {pg:1,seg:4,at:31.1,k:'text',x:CX,y:CY+R-82,s:26,f:'fr',c:P.ink,txt:'PUAS!',al:'c'},
+ // seg5 left + loop
+ {pg:1,seg:5,k:'path',d:arc(90,180),c:P.pink,w:4.5},
+ B('left','loop','#fff',5),
+ {pg:1,seg:5,at:36.0,k:'text',x:CX-R+54,y:CY+14,s:26,f:'fr',c:P.pink,txt:'NAK LAGI!'},
+ {pg:1,seg:5,k:'path',d:arc(180,270),c:P.pink,w:4.5},
+ {pg:1,seg:5,at:37.8,k:'text',x:CX-R+54,y:CY+44,s:22,f:'cv',c:P.pur,txt:'walaupun dah kenyang'},
+ // seg6 brake mark on cycle
+ {pg:1,seg:6,k:'path',d:`M${bx-22} ${by+4} L${bx+4} ${by-22} M${bx-12} ${by+14} L${bx+14} ${by-12}`,c:P.pur,w:7},
+ {pg:1,seg:6,k:'text',x:bx-118,y:by-50,s:28,f:'fr',c:P.pur,txt:'BREK!'},
+ // flip
+ {seg:7,k:'flip'},
+ // ===== PAGE 2 =====
+ {pg:2,seg:7,k:'pop',x:L-4,y:162,w:150,h:34,html:pill('OTAK KITA #1')},
+ {pg:2,seg:7,k:'hl',x:L-8,y:222,w:438,h:38},
+ {pg:2,seg:7,k:'text',x:L,y:212,s:40,f:'fr',c:P.ink,txt:'Siapa boleh brek?'},
+ {pg:2,seg:7,at:43.4,k:'pop',x:L-4,y:286,w:86,h:86,html:icon('stop')},
+ {pg:2,seg:7,k:'text',x:L+96,y:292,s:28,f:'fr',c:P.pur,txt:'PREFRONTAL CORTEX'},
+ {pg:2,seg:7,at:46.6,k:'text',x:L+98,y:330,s:28,f:'cv',c:P.txt,txt:'kawalan diri: "cukup lah!"'},
+ // seg8 takeaway
+ {pg:2,seg:8,k:'hl',x:L-8,y:428,w:404,h:36},
+ {pg:2,seg:8,k:'text',x:L,y:420,s:32,f:'fr',c:P.ink,txt:'Bukan sebab anda lemah'},
+ {pg:2,seg:8,k:'path',d:`M${L+406} 440 L${L+420} 456 L${L+446} 422`,c:P.grn,w:6},
+ {pg:2,seg:8,at:54.4,k:'text',x:L,y:474,s:26,f:'cv',c:P.pur,txt:'dessert memang direka "rewarding" untuk otak'},
+ // seg9 tip
+ {pg:2,seg:9,k:'text',x:L,y:560,s:30,f:'fr',c:P.pink,txt:'Tip saya:'},
+ {pg:2,seg:9,at:60.4,k:'pop',x:L-2,y:604,w:56,h:56,html:icon('glass')},
+ {pg:2,seg:9,at:61.4,k:'text',x:L+66,y:610,s:31,f:'cv',c:P.ink,txt:'lepas makan, minum air dulu'},
+ {pg:2,seg:9,at:63.8,k:'pop',x:L-2,y:672,w:56,h:56,html:icon('walk')},
+ {pg:2,seg:9,at:64.3,k:'text',x:L+66,y:678,s:31,f:'cv',c:P.ink,txt:'banyakkan pergerakan'},
+ {pg:2,seg:9,at:68.2,k:'text',x:L+4,y:748,s:28,f:'cv',c:P.pur,txt:'→ bagi otak masa untuk cakap "cukup"'},
+ // seg10 CTA
+ {pg:2,seg:10,k:'pop',x:L-8,y:828,w:520,h:70,html:`<svg width="100%" height="100%" viewBox="0 0 520 70" style="overflow:visible"><path d="M14 4 H506 a12 12 0 0 1 12 12 V46 a12 12 0 0 1 -12 12 H70 L44 74 L48 58 H14 a12 12 0 0 1 -12 -12 V16 a12 12 0 0 1 12 -12 Z" fill="${P.pur}" stroke="${P.ink}" stroke-width="3.5"/><text x="260" y="40" text-anchor="middle" font-family="FR" font-weight="600" font-size="24" fill="#fff">Dessert apa anda tak boleh tolak?</text></svg>`},
+ {pg:2,seg:10,at:75.2,k:'text',x:L+120,y:912,s:30,f:'cv',c:P.pink,txt:'komen di bawah ↓'},
+];
+// ---- build ----
+const NS='http://www.w3.org/2000/svg';
+const pg={1:document.getElementById('pg1'),2:document.getElementById('pg2')};
+S.forEach(e=>{if(e.k==='flip')return;const root=pg[e.pg];const over=root.querySelector('.over'),under=root.querySelector('.under'),ink=root.querySelector('.ink');
+ if(e.k==='text'){const d=document.createElement('div');d.className='t '+e.f;d.textContent=e.txt;Object.assign(d.style,{left:e.x+'px',top:e.y+'px',fontSize:e.s+'px',color:e.c});over.appendChild(d);e.el=d;}
+ else if(e.k==='pop'){const d=document.createElement('div');d.className='pop';d.innerHTML=e.html;Object.assign(d.style,{left:e.x+'px',top:e.y+'px',width:e.w+'px',height:e.h+'px'});over.appendChild(d);e.el=d;}
+ else if(e.k==='hl'){const d=document.createElement('div');d.className='hl';Object.assign(d.style,{left:e.x+'px',top:e.y+'px',width:e.w+'px',height:e.h+'px'});under.appendChild(d);e.el=d;}
+ else {const p=document.createElementNS(NS,'path');p.setAttribute('d',e.d);p.setAttribute('fill','none');p.setAttribute('stroke',e.c);p.setAttribute('stroke-width',e.w);p.setAttribute('stroke-linecap','round');p.setAttribute('stroke-linejoin','round');ink.appendChild(p);e.el=p;e.len=p.getTotalLength();}
+});
+let FLIP=1e9;
+window.setup=function(segs){
+ S.forEach(e=>{if(e.k==='text'&&e.al){const w=e.el.getBoundingClientRect().width;e.el.style.left=(e.x-(e.al==='c'?w/2:w))+'px'}});
+ const by={};S.forEach(e=>{(by[e.seg]=by[e.seg]||[]).push(e)});
+ for(const s in by){const [a,b]=segs[s];const list=by[s];
+  list.forEach(e=>{e.nat=e.k==='text'?Math.max(.35,e.el.getBoundingClientRect().width/480):e.k==='path'?Math.max(.3,e.len/650):e.k==='hl'?.35:e.k==='flip'?.8:.45});
+  const gap=.1;const tot=list.reduce((q,e)=>q+e.nat+gap,0);const k=Math.min(1,Math.max(.5,(b-a)-.1)/tot);
+  let t=a;list.forEach(e=>{if(e.at!==undefined&&e.at>t)t=e.at;e.t0=t;e.t1=t+e.nat*k;t=e.t1+gap*k;if(e.k==='flip')FLIP=e.t0;});}
+};
+window.showSafe=v=>{document.getElementById('safe').style.display=v?'block':'none'};
+const back=x=>{const c=1.9;x=x-1;return 1+x*x*((c+1)*x+c)};
+const ease=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
+window.renderAt=function(t){
+ [1,2].forEach(n=>{const t0=n===1?0:FLIP;const u=Math.max(0,t-t0);const z=1.05-0.05*Math.min(1,u/(n===1?42:38));
+  pg[n].querySelector('.cam').style.transform=`translate(${Math.sin(t*.35)*2.5}px,${Math.cos(t*.3)*2.5}px) scale(${z})`;});
+ const fp=Math.min(1,Math.max(0,(t-FLIP)/.8));const p1=pg[1];
+ if(fp<=0){p1.style.display='block';p1.style.transform='none';p1.querySelector('.shade').style.opacity=0;}
+ else if(fp>=1){p1.style.display='none';}
+ else{p1.style.display='block';p1.style.transform=`rotateX(${ease(fp)*178}deg)`;p1.querySelector('.shade').style.opacity=ease(fp)*1.2;}
+ pg[2].style.visibility=t>FLIP-.05?'visible':'hidden';
+ S.forEach(e=>{if(e.k==='flip')return;const p=Math.min(1,Math.max(0,(t-e.t0)/(e.t1-e.t0)));
+  e.el.style.visibility=p>0?'visible':'hidden';
+  if(e.k==='text')e.el.style.clipPath=`inset(-12px ${(1-p)*100}% -12px -12px)`;
+  else if(e.k==='pop'){const s=p<1?Math.max(0,back(p)):1;e.el.style.transform=`scale(${s}) rotate(${(1-p)*-8}deg)`;e.el.style.opacity=Math.min(1,p*3);}
+  else if(e.k==='hl')e.el.style.transform=`skewX(-6deg) scaleX(${p})`;
+  else{e.el.setAttribute('stroke-dasharray',e.len+' '+e.len);e.el.setAttribute('stroke-dashoffset',e.len*(1-p));}
+ });
+};
+</script></body></html>
